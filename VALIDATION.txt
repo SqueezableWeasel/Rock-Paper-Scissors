@@ -1,0 +1,57 @@
+LOCAL VALIDATION: Linux x86-64, GCC 12, Qt 5.15 and OpenCV 4.6
+
+Repository package: all first-party C++ source matched the previous release
+after removing the same-line annotations. The two applications passed
+compile checks, the bundled SDK and C1 probe built, and the tracking,
+activation, round-flow, rendering, and input regressions passed. The
+packaged shell scripts parsed in Linux and forwarded the expected arguments
+to the test compiler and debugger commands. The README links were checked
+against the included files, and both demo formats decoded in full.
+
+The quantized CPU models reproduced the 0.50 hand-presence reading on the
+provided screenshot after removing the on-screen overlay for inference.
+The tracking regression verifies that a 0.50 candidate contributes neither
+a hand nor a bounding box and that a confident hand can be acquired next.
+The scoring check rejects an invalid hand and a current label that disagrees
+with the stabilized label. Both recorded fist-shake traces still started
+on the third lowering with the 0.65 threshold applied.
+
+Performance update: an offscreen renderer benchmark in a local VM measured
+BGR frame acquisition into the Qt image plus scaling and drawing. At
+1632x1024, that work averaged 37.49 ms per frame with the previous path and
+4.00 ms with the reusable RGB32 image. At 800x480, it went from 8.83 to
+1.97 ms. These timings isolate Qt conversion and painting in the test VM.
+Pi throughput and frames delivered over VNC require an on-device run.
+
+Input packing matched the original RGB lookup-table values across all 256
+channel values, including an alternate quantization table and a partial
+vector block. The local run used the scalar implementation. The ARM SIMD
+branch needs Pi verification. The chunk reader passed tests for JPEG markers
+split across reads, adjacent frames, and a truncated frame.
+
+The updated detector passed motion tests at 15, 24, 30 and 60 FPS.
+The count survives a brief tracking loss, a short open label and a crop
+jump. Sustained tracking loss, an unclear or open hand, and a long pause
+still reset it. The detector fires once on the third lowering.
+
+On two offline traces from the follow-up recording, the earlier code reset
+around the first lowering and the updated detector kept the sequence and
+fired on the third lowering at about 8.4 to 8.6 seconds. One trace uses CPU
+inference with the pre-Coral INT8 models. The other estimates positions and
+labels from the on-screen overlay. Both traces approximate the live tracker.
+Replays of the original recording still triggered once on the third lowering.
+
+Both C++ programs passed syntax checks with Qt, OpenCV and TensorFlow Lite
+headers. The Qt display test built and passed at 320x240, 800x480, 1632x1024
+and 1920x1080. It checked full window coverage, keyboard input, fullscreen
+switching and closing the window.
+
+A local round-flow test rendered the actual game HUD in all four game states.
+While waiting for a round, it verified the camera is visible from the top
+strip to the bottom edge across 434 of 480 rows. Active rounds still keep the
+footer and show 390 of 480 camera rows. Rendering at 800x480, 1632x1024 and
+1920x1080 preserved the full-width camera region. The test also exercised
+Space input, the three-second countdown, gesture capture, scoring, and the
+return to the ready layout.
+
+Live gesture recognition and performance on the Pi still need a hardware run.

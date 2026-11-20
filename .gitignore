@@ -1,0 +1,10 @@
+/rock_paper_scissors
+/hand_tracker
+/c1_probe
+/coral_hand_models/
+/vendor/rplidar_sdk/output/
+*.o
+*.a
+*.log
+/core
+/core.*
